@@ -1,6 +1,6 @@
 {
   "name": "yaddt",
-  "version": "1.0.0",
+  "version": "0.9.0",
   "description": "Yet Another Dummy mini program Dev Tool.",
   "main": "boot.js",
   "dependencies": {

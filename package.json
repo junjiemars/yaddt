@@ -4,7 +4,8 @@
   "description": "Yet Another Dummy mini program Dev Tool.",
   "main": "boot.js",
   "dependencies": {
-    "minimist": "^1.2.5"
+    "minimist": "^1.2.5",
+    "fs-extra": "^10.0.0"
   },
   "devDependencies": {},
   "scripts": {},

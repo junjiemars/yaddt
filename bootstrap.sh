@@ -7,7 +7,7 @@ if [ ! -x "$NODE" ]; then
     exit 1
   fi
   . "$HOME/.nvm/nvm.sh"
-  if `nvm --version &>/dev/null`; then
+  if ! `nvm --version &>/dev/null`; then
     echo "!panic, node no found"
     exit 1
   fi
@@ -18,10 +18,10 @@ if [ ! -x "$NODE" ]; then
   fi
 fi
 
-if `wine --version &>/dev/null`; then
+if ! `wine --version &>/dev/null`; then
   sudo apt install wine-binfmt || echo 1
 fi
 
-npm install
+npm install --quiet &>/dev/null || exit 1
 
 $NODE boot.js $@

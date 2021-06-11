@@ -4,8 +4,9 @@
   "description": "Yet Another Dummy mini program Dev Tool.",
   "main": "boot.js",
   "dependencies": {
+    "fs-extra": "^10.0.0",
     "minimist": "^1.2.5",
-    "fs-extra": "^10.0.0"
+    "node-libcurl": "^2.3.3"
   },
   "devDependencies": {},
   "scripts": {},

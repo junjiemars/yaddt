@@ -21,6 +21,11 @@ const help = [
 ].join("\n");
 
 
+function download(options, url) {
+  console.log('!TODO: download(%s, %s)', options, url);
+  
+}
+
 
 function install(options) {
   console.log('!TODO: install(%s)', options.install);

@@ -37,7 +37,7 @@ function install(options) {
     }
   });
 
-  const vbag = `${vdir}/wechat_devtools_${ver}_${arch}.exe`;
+  const vbag = `vendor/${options.vendor}/wechat_devtools_${ver}_${arch}.exe`;
   const { exec } = require('child_process');
   exec(`7z x -o${cwd}/${vdir} ${cwd}/${vbag} -y`, (e, _, __) => {
     if (e) {

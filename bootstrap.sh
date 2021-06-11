@@ -18,6 +18,10 @@ if [ ! -x "$NODE" ]; then
   fi
 fi
 
+if `wine --version &>/dev/null`; then
+  sudo apt install wine-binfmt || echo 1
+fi
+
 npm install
 
 $NODE boot.js $@

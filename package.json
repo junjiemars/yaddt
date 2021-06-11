@@ -4,13 +4,10 @@
   "description": "Yet Another WeChat Dev Tool.",
   "main": "boot.js",
   "dependencies": {
-    "getopt": "^0.1.0",
     "minimist": "^1.2.5"
   },
   "devDependencies": {},
-  "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
-  },
+  "scripts": {},
   "keywords": [],
   "author": "",
   "license": "ISC"

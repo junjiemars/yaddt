@@ -22,7 +22,7 @@ if [ 0 -ne `wine --version 2>&1 >/dev/null; echo $?` ]; then
   sudo apt install wine-binfmt || exit 1
 fi
 
-if [ 0 -ne `7z --version 2>&1 >/dev/null` ]; then
+if [ 0 -ne `7z i 2>&1 >/dev/null; echo $?` ]; then
   sudo apt install p7zip || exit 1
 fi
 

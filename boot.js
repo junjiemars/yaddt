@@ -46,28 +46,28 @@ function install(options) {
   const arch = process.arch;
   const cwd = process.cwd();
 
-  const [ ver, arch = process.arch ] = options.install.split('_');
-  console.log('ver=%s, arch=%s', ver, arch);
+  // const [ ver, arch = process.arch ] = options.install.split('_');
+  // console.log('ver=%s, arch=%s', ver, arch);
 
-  const vdir = `vendor/${options.vendor}/${ver}/${arch}`;
-  const fs = require('fs');
-  fs.mkdir(`${cwd}/${vdir}`, { recursive: true }, (e) => {
-    if (e) {
-      console.error(e);
-      // process.exit(1);
-    }
-  });
+  // const vdir = `vendor/${options.vendor}/${ver}/${arch}`;
+  // const fs = require('fs');
+  // fs.mkdir(`${cwd}/${vdir}`, { recursive: true }, (e) => {
+  //   if (e) {
+  //     console.error(e);
+  //     // process.exit(1);
+  //   }
+  // });
 
-  const vbag = `vendor/${options.vendor}/wechat_devtools_${ver}_${arch}.exe`;
-  const { exec } = require('child_process');
-  exec(`7z x -o${cwd}/${vdir} ${cwd}/${vbag} -y`, (e, _, __) => {
-    if (e) {
-      console.error(e);
-      // process.exit(1);
-    }
-  });
+  // const vbag = `vendor/${options.vendor}/wechat_devtools_${ver}_${arch}.exe`;
+  // const { exec } = require('child_process');
+  // exec(`7z x -o${cwd}/${vdir} ${cwd}/${vbag} -y`, (e, _, __) => {
+  //   if (e) {
+  //     console.error(e);
+  //     // process.exit(1);
+  //   }
+  // });
 
-  const fsx = require('fs-extra');
+  // const fsx = require('fs-extra');
 
 }
 
@@ -92,18 +92,37 @@ if ((options._ && options.length > 0)
   process.exit(1);
 }
 
-console.log('# command line: %s', JSON.stringify(options));
+// vendor option:
+{
+  const v = {
+    name: options.vendor && options.vendor.name || option_vendor.name,
+    ver: options.vendor && options.vendor.ver || option_vendor.ver,
+  };
+  options.vendor = v;
+}
+// host option:
+{
+  const h = {
+    name: options.host && options.host.name || option_host.name,
+    ver: options.host && options.host.ver || option_host.ver,
+  };
+  options.host = h;
+}
+console.log('# command line: %s', JSON.stringify(options, null, 2));
 
+// install
 if (options.install) {
   install(options);
   process.exit(0);
 }
 
+// run
 if (options.run) {
   run(options);
   process.exit(0);
 }
 
+// exit
 console.log(help);
 process.exit(1);
 

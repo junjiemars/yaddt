@@ -80,8 +80,10 @@ function run_wechat(options) {
   console.log(options);
   const cwd = process.cwd();
   const arch = process.arch;
-  const nw = `${cwd}/host/${options.host.name}/${options.host.ver}/${arch}/nw`;
-  const ext = `${cwd}/vendor/${options.vendor.name}/${options.vendor.ver}/${arch}/code/package.nw/js/ideplugin`;
+  const { name: hname, ver: hver } = options.host;
+  const { name: vname, ver: vver } = options.vendor;
+  const nw = `${cwd}/host/${hname}/${hver}/${arch}/nw`;
+  const ext = `${cwd}/vendor/${vname}/${vver}/${arch}/code/package.nw/js/ideplugin`;
   // process.env['LANG'] = 'zh_CN.UTF-8';
 
   const { execFile } = require('child_process');

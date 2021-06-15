@@ -14,7 +14,7 @@ const option_vendor = new Map([
   [ 'alipay',  { name: 'alipay',  ver: '2.0.6', } ],
 ]);
 const option_host = new Map([
-  [ 'nw.js', { name: 'nw.js', ver: '0.54.0', } ],
+  [ 'nw', { name: 'nw', ver: '0.54.0', } ],
 ]);
 
 
@@ -76,18 +76,30 @@ function install(options) {
 
 }
 
-function run(options) {
-  console.log('# run via ', options.run);
+function run_wechat(options) {
   const cwd = process.cwd();
-  const { execFile } = require('child_process');
+  const arch = process.arch;
+  const nw = `${cwd}/host/${options.host.ver}/${arch}/nw`;
+  const ext = `${cwd}/vendor/wechat/${options.vendor.ver}/${arch}/code/package.nw/js/ideplugin`;
+  // process.env['LANG'] = 'zh_CN.UTF-8';
   
-  const child = execFile(`${process.cwd()}/x.sh`, (e, stdout, __) => {
+  const { execFile } = require('child_process');
+  const child = execFile(`${nw} --load-extension=${ext}`, (e, stdout, __) => {
     if (e) {
       console.error(e);
       // process.exit(1);
     }
     console.log(stdout);
-  });
+  });  
+}
+
+function run(options) {
+  console.log('# run %s@%s ...', options.vendor.name, options.host.name);
+  if ('wechat' === options.vendor.name) {
+    run_wechat(options);
+    return;
+  }
+  
 }
 
 
@@ -99,19 +111,22 @@ if ((options._ && options.length > 0)
 
 // vendor option:
 {
-  const opt = JSON.parse(options.vendor);
-  const v = {
+  const opt = typeof(options.vendor) === 'string'
+        ? JSON.parse(options.vendor)
+        : options.vendor || '';
+  options.vendor = {
     name: opt && opt.name || 'wechat',
     ver: opt && opt.ver || option_vendor.get('wechat').ver,
   };
-  options.vendor = v;
 }
 // host option:
 {
-  const opt = JSON.parse(options.host);
+  const opt = typeof(options.host) === 'string'
+        ? JSON.parse(options.host)
+        : options.host || '';
   const h = {
-    name: opt.host && opt.host.name || 'nw.js',
-    ver: opt.host && opt.host.ver || option_host.get('nw.js').ver,
+    name: opt.host && opt.host.name || 'nw',
+    ver: opt.host && opt.host.ver || option_host.get('nw').ver,
   };
   options.host = h;
 }

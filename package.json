@@ -5,8 +5,7 @@
   "main": "boot.js",
   "dependencies": {
     "fs-extra": "^10.0.0",
-    "minimist": "^1.2.5",
-    "node-libcurl": "^2.3.3"
+    "minimist": "^1.2.5"
   },
   "devDependencies": {},
   "scripts": {},

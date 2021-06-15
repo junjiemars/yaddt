@@ -9,28 +9,44 @@ const argv = process.argv.slice(process.argv.indexOf('--') !== -1
 const getopt = require('minimist');
 const options = getopt(argv);
 
+const option_vendor = {
+  name: 'wechat',
+  ver: '1.05.2105170',
+};
+const option_host = {
+  name: 'nw.js',
+  ver: '0.54.0',
+};
+
 
 const help = [
   "usage: yaddt.sh [options and files]",
   "options:",
   "  -h, --help                              display this help",
   "  --vendor=[wechat,alipay]                default is wechat dev tool",
-  "  --install=version                       install mini program dev tool",
+  "  --host=[nw]                             default is nw.js",
+  "  --install                               install mini program dev tool and host",
   "  --run                                   run mini programm dev tool",
   "  --version                               print version and exit",
+  "",
+  "examples:",
+  `  yaddt --vendor='${JSON.stringify(option_vendor)}' --host='${JSON.stringify(option_host)}' --install`,
 ].join("\n");
 
 
-function download(options, url) {
-  console.log('!TODO: download(%s, %s)', options, url);
-  
+function download(options, url, path, after) {
+  console.log('# try to download %s via %s', url, options);
+  const { exec } = require('child_process');
+  exec(`curl -sqL -O${url} -o${path}`, after);
 }
 
 
 function install(options) {
-  console.log('!TODO: install(%s)', options.install);
-  const [ ver, arch = process.arch ] = options.install.split('_');
+  console.log('# install ...');
+  const arch = process.arch;
   const cwd = process.cwd();
+
+  const [ ver, arch = process.arch ] = options.install.split('_');
   console.log('ver=%s, arch=%s', ver, arch);
 
   const vdir = `vendor/${options.vendor}/${ver}/${arch}`;
@@ -50,14 +66,23 @@ function install(options) {
       // process.exit(1);
     }
   });
-  
+
   const fsx = require('fs-extra');
-  
+
 }
 
 function run(options) {
-  console.log('!TODO: run(%s)', options.run);
-
+  console.log('# run via ', options.run);
+  const cwd = process.cwd();
+  const { execFile } = require('child_process');
+  
+  const child = execFile(`${process.cwd()}/x.sh`, (e, stdout, __) => {
+    if (e) {
+      console.error(e);
+      // process.exit(1);
+    }
+    console.log(stdout);
+  });
 }
 
 
@@ -67,9 +92,7 @@ if ((options._ && options.length > 0)
   process.exit(1);
 }
 
-if (options.vendor) {
-  console.log(options.vendor);
-}
+console.log('# command line: %s', JSON.stringify(options));
 
 if (options.install) {
   install(options);

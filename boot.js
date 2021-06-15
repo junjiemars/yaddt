@@ -9,14 +9,13 @@ const argv = process.argv.slice(process.argv.indexOf('--') !== -1
 const getopt = require('minimist');
 const options = getopt(argv);
 
-const option_vendor = {
-  name: 'wechat',
-  ver: '1.05.2105170',
-};
-const option_host = {
-  name: 'nw.js',
-  ver: '0.54.0',
-};
+const option_vendor = new Map([
+  [ 'wechat',  { name: 'wechat',  ver: '1.05.2105170', } ],
+  [ 'alipay',  { name: 'alipay',  ver: '2.0.6', } ],
+]);
+const option_host = new Map([
+  [ 'nw.js', { name: 'nw.js', ver: '0.54.0', } ],
+]);
 
 
 const help = [
@@ -30,7 +29,7 @@ const help = [
   "  --version                               print version and exit",
   "",
   "examples:",
-  `  yaddt --vendor='${JSON.stringify(option_vendor)}' --host='${JSON.stringify(option_host)}' --install`,
+  `  yaddt --vendor='${JSON.stringify(option_vendor.get("wechat"))}' --host='${JSON.stringify(option_host.get("wechat"))}' --install`,
 ].join("\n");
 
 
@@ -94,17 +93,19 @@ if ((options._ && options.length > 0)
 
 // vendor option:
 {
+  const opt = JSON.parse(options.vendor);
   const v = {
-    name: options.vendor && options.vendor.name || option_vendor.name,
-    ver: options.vendor && options.vendor.ver || option_vendor.ver,
+    name: opt && opt.name || 'wechat',
+    ver: opt && opt.ver || option_vendor.get('wechat').ver,
   };
   options.vendor = v;
 }
 // host option:
 {
+  const opt = JSON.parse(options.host);
   const h = {
-    name: options.host && options.host.name || option_host.name,
-    ver: options.host && options.host.ver || option_host.ver,
+    name: opt.host && opt.host.name || 'nw.js',
+    ver: opt.host && opt.host.ver || option_host.get('nw.js').ver,
   };
   options.host = h;
 }

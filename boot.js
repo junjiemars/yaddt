@@ -23,13 +23,19 @@ const help = [
   "options:",
   "  -h, --help                              display this help",
   "  --vendor=[wechat,alipay]                default is wechat dev tool",
-  "  --host=[nw]                             default is nw.js",
+  "  --host=[nw,electron]                    default is nw.js",
   "  --install                               install mini program dev tool and host",
   "  --run                                   run mini programm dev tool",
   "  --version                               print version and exit",
   "",
   "examples:",
-  `  yaddt --vendor='${JSON.stringify(option_vendor.get("wechat"))}' --host='${JSON.stringify(option_host.get("wechat"))}' --install`,
+  '  yaddt.sh --run',
+  `  yaddt.sh --vendor='${JSON.stringify(option_vendor.get("wechat"))}'  \\`,
+  `           --host='${JSON.stringify(option_host.get("wechat"))}'  \\`,
+  '           --install',
+  `  yaddt.sh --vendor='${JSON.stringify(option_vendor.get("wechat"))}'  \\`,
+  `           --host='${JSON.stringify(option_host.get("wechat"))}'  \\`,
+  '           --run',
 ].join("\n");
 
 

@@ -84,7 +84,7 @@ function run_wechat(options) {
   const { name: vname, ver: vver } = options.vendor;
   const nw = `${cwd}/host/${hname}/${hver}/${arch}/nw`;
   const ext = `${cwd}/vendor/${vname}/${vver}/${arch}/code/package.nw/js/ideplugin`;
-  // process.env['LANG'] = 'zh_CN.UTF-8';
+  process.env['LANG'] = 'zh_CN.UTF-8';
 
   const { execFile } = require('child_process');
   execFile(nw, ['--disable-gpu', `--load-extension=${ext}`], (e, _, __) => {

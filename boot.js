@@ -77,20 +77,20 @@ function install(options) {
 }
 
 function run_wechat(options) {
+  console.log(options);
   const cwd = process.cwd();
   const arch = process.arch;
-  const nw = `${cwd}/host/${options.host.ver}/${arch}/nw`;
-  const ext = `${cwd}/vendor/wechat/${options.vendor.ver}/${arch}/code/package.nw/js/ideplugin`;
+  const nw = `${cwd}/host/${options.host.name}/${options.host.ver}/${arch}/nw`;
+  const ext = `${cwd}/vendor/${options.vendor.name}/${options.vendor.ver}/${arch}/code/package.nw/js/ideplugin`;
   // process.env['LANG'] = 'zh_CN.UTF-8';
-  
+
   const { execFile } = require('child_process');
-  const child = execFile(`${nw} --load-extension=${ext}`, (e, stdout, __) => {
+  execFile(nw, ['--disable-gpu', `--load-extension=${ext}`], (e, _, __) => {
     if (e) {
       console.error(e);
       // process.exit(1);
     }
-    console.log(stdout);
-  });  
+  });
 }
 
 function run(options) {

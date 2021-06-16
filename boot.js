@@ -47,24 +47,13 @@ function download(options, url, path, after) {
 
 function install_wechat(options) {
   const fs = require('fs');
+  const dist_dir = `${options.cwd}/dist`;
 
   // copy nw.js
   const nw_tgz = `${options.hostPath}/nwjs-v${options.host.ver}-linux-${process.arch}.tar.gz`;
   if (!fs.existsSync(nw_tgz)) {
     // download
   }
-
-  // create dist dir
-  const dist_dir = `${options.cwd}/dist`;
-  if (fs.existsSync(dist_dir)) {
-    fs.rmdir(dist_dir, { recursive: true }, (e) => {
-      if (e) {
-        console.error(e);
-        // process.exit(1);
-      }
-    });
-  }
-  fs.mkdirSync(dist_dir);
 
   // extract nw_tgz to dist
   const { exec } = require('child_process');
@@ -144,13 +133,18 @@ function install_wechat(options) {
 function install(options) {
   console.log('# install ...');
   const fs = require('fs');
+
+  // create dist dir
   const dist_dir = `${options.cwd}/dist`;
-  fs.mkdir(dist_dir, { recursive: true }, (e) => {
-    if (e) {
-      console.error(e);
-      // process.exit(1);
-    }
-  });
+  if (fs.existsSync(dist_dir)) {
+    fs.rmdir(dist_dir, { recursive: true }, (e) => {
+      if (e) {
+        console.error(e);
+        process.exit(1);
+      }
+      fs.mkdirSync(dist_dir);      
+    });
+  }
 
   switch (options.vendor.name) {
   case 'wechat':
@@ -158,7 +152,7 @@ function install(options) {
       return install_wechat(options);
     }
   default:
-    console.error('xxx');
+    console.error('!panic, unknown vendor');
     process.exit(1);
   }
   // const arch = process.arch;
@@ -191,12 +185,12 @@ function install(options) {
 }
 
 function run_wechat(options) {
-  console.log(options);
-  const nw = `${options.hostPath}/nw`;
-  const ext = `${options.hostPath}/package.nw/js/ideplugin`;
+  const dist_dir = `${options.cwd}/dist`;
+  const nw = `${dist_dir}/nw`;
+  const ext = `${dist_dir}/package.nw/js/ideplugin`;
   process.env['LANG'] = 'zh_CN.UTF-8';
-  process.env['APPDATA'] = options.hostPath;
-  process.env['PATH'] = `${options.hostPath}:${process.env['PATH']}`;
+  process.env['APPDATA'] = dist_dir;
+  process.env['PATH'] = `${dist_dir}:${process.env['PATH']}`;
 
   const { execFile } = require('child_process');
   execFile(nw, ['--disable-gpu', `--load-extension=${ext}`], (e, _, __) => {

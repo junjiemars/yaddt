@@ -45,6 +45,16 @@ function download(options, url, path, after) {
   exec(`curl -sqL -O${url} -o${path}`, after);
 }
 
+function install_wechat(options) {
+  const fs = require('fs');
+
+  const dir_package_nw = `${options.vendorPath}/code/package.nw`;
+  const ln_package_nw = `${options.hostPath}/package.nw`;
+  if (fs.existsSync(ln_package_nw)) {
+    fs.unlinkSync(ln_package_nw);
+  }
+  fs.symlinkSync(dir_package_nw, ln_package_nw);
+}
 
 function install(options) {
   console.log('# install ...');
@@ -121,6 +131,7 @@ if ((options._ && options.length > 0)
     name: opt && opt.name || 'wechat',
     ver: opt && opt.ver || option_vendor.get('wechat').ver,
   };
+  options.vendorPath = `${process.cwd()}/vendor/${options.vendor.name}/${options.vendor.ver}/${process.arch}`;
 }
 // host option:
 {
@@ -132,6 +143,7 @@ if ((options._ && options.length > 0)
     ver: opt.host && opt.host.ver || option_host.get('nw').ver,
   };
   options.host = h;
+  options.hostPath = `${process.cwd()}/host/${options.host.name}/${options.host.ver}/${process.arch}`;
 }
 console.log('# command line: %s', JSON.stringify(options, null, 2));
 

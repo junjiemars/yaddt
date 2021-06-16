@@ -1,5 +1,6 @@
 **/node_modules
-vendor/
-host/
 **/*.log
 **/bin/
+vendor/
+host/
+dist/

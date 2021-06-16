@@ -93,6 +93,20 @@ function install_wechat(options) {
     fs.unlinkSync(ln_node_exe);
   }
   fs.symlinkSync(process.execPath, ln_node_exe);
+
+  // clean non zh-CN and non en-US locales
+  const locale_dir = `${options.hostPath}/locales/`;
+  fs.readdir(locale_dir, (e, files) => {
+    if (e) {
+      console.error(e);
+      // process.exit(1);
+    }
+    for (const f of files) {
+      if (!f.match(/(^zh\-CN.*)|(^en\-US.*)/)) {
+        fs.unlinkSync(`${locale_dir}/${f}`);
+      }
+    }
+  });
 }
 
 function install(options) {

@@ -48,6 +48,32 @@ function download(options, url, path, after) {
 function install_wechat(options) {
   const fs = require('fs');
 
+  // decorate package.json
+  const package_json = `${options.vendorPath}/code/package.nw/package.json`;
+  if (!fs.existsSync(package_json)) {
+    console.error('!panic, @%s no found', package_json);
+    process.exit(1);
+  }
+  fs.readFile(package_json, 'utf-8', (e, d) => {
+    if (e) {
+      console.error(e);
+      // process.exit(1);
+    }
+    fs.copyFile(package_json, `${package_json}.b0`, (e1) => {
+      if (e1) {
+        console.error(e1);
+        // process.exit(1);
+      }
+    });
+    const n = d.replace(/微信开发者工具/gim, 'wechat_web_devtools');
+    fs.writeFile(package_json, n, 'utf-8', (e2, _) => {
+      if (e2) {
+        console.error(e2);
+        // process.exit(1);
+      }
+    });
+  });
+
   const dir_package_nw = `${options.vendorPath}/code/package.nw`;
   const ln_package_nw = `${options.hostPath}/package.nw`;
   if (fs.existsSync(ln_package_nw)) {
@@ -112,7 +138,7 @@ function run(options) {
     run_wechat(options);
     return;
   }
-  
+
 }
 
 

@@ -47,80 +47,81 @@ function download(options, url, path, after) {
 
 function install_wechat(options) {
   const fs = require('fs');
-  const dist_dir = `${options.cwd}/dist`;
+  const { execFileSync } = require('child_process');
 
-  // copy nw.js
-  const nw_tgz = `${options.hostPath}/nwjs-v${options.host.ver}-linux-${process.arch}.tar.gz`;
+  console.log('# create nw@%s ...', options.hostPath);
+  if (fs.existsSync(options.hostPath)) {
+    fs.rmdirSync(options.hostPath, { recursive: true });
+  }
+  fs.mkdirSync(options.hostPath);
+
+  console.log('# create vendor@%s ...', options.vendorPath);
+  if (fs.existsSync(options.vendorPath)) {
+    fs.rmdirSync(options.vendorPath, { recursive: true });
+  }
+  fs.mkdirSync(options.vendorPath);
+
+  const nw_tgz = `${options.hostRoot}/nwjs-v${options.host.ver}-linux-${process.arch}.tar.gz`;
   if (!fs.existsSync(nw_tgz)) {
-    // download
+    console.log('# download %s ...', nw_tgz);
+    process.exit(1);            //!TODO: remove it
   }
 
-  // extract nw_tgz to dist
-  const { exec } = require('child_process');
-  exec(`tar xvfz ${nw_tgz} -C ${dist_dir} --strip-components=1`, (e, _, __) => {
-    if (e) {
-      console.error(e);
-      // process.exit(1);
-    }
-  });
+  console.log('# extract %s@%s ...', nw_tgz, options.hostPath);
+  const tar_argv = ['xvfz', nw_tgz, `--directory=${options.hostPath}`, '--strip-components=1'];
+  execFileSync('tar', tar_argv);
 
-  // extract vendor_exe to dist
-  const vendor_exe = `${options.vendorPath}/wechat_devtools_${options.vendor.ver}_${options.arch}.exe`;
-  exec(`7z x -o${dist_dir}/ ${vendor_exe} -y`, (e) => {
-    if (e) {
-      console.error(e);
-      // process.exit(1);
-    }
-  });
+  const vendor_exe = `${options.vendorRoot}/wechat_devtools_${options.vendor.ver}_${options.arch}.exe`;
+  console.log('# extract %s@%s ...', vendor_exe, options.vendorPath);
+  const z7_argv = ['x', `-o${options.vendorPath}/`, `${vendor_exe}`, '-y'];
+  execFileSync('7z', z7_argv);
   
   // decorate package.json
-  const package_json = `${dist_dir}/code/package.nw/package.json`;
+  const package_json = `${options.vendorPath}/code/package.nw/package.json`;
+  console.log('# decorate %s ...', package_json);
   fs.readFile(package_json, 'utf-8', (e, d) => {
     if (e) {
       console.error(e);
-      // process.exit(1);
+      process.exit(1);
     }
-    fs.copyFile(package_json, `${package_json}.b0`, (e1) => {
+    const n = d.replace(/微信开发者工具/gim, 'wechat_web_devtools');
+    fs.writeFile(package_json, n, 'utf-8', (e1) => {
       if (e1) {
         console.error(e1);
-        // process.exit(1);
-      }
-    });
-    const n = d.replace(/微信开发者工具/gim, 'wechat_web_devtools');
-    fs.writeFile(package_json, n, 'utf-8', (e2, _) => {
-      if (e2) {
-        console.error(e2);
-        // process.exit(1);
+        process.exit(1);
       }
     });
   });
 
   // link package.nw
-  const dir_package_nw = `${dist_dir}/code/package.nw`;
-  const ln_package_nw = `${dist_dir}/package.nw`;
+  const dir_package_nw = `${options.vendorPath}/code/package.nw`;
+  const ln_package_nw = `${options.hostPath}/package.nw`;
+  console.log('# link %s@%s ...', dir_package_nw, ln_package_nw);
   if (fs.existsSync(ln_package_nw)) {
     fs.unlinkSync(ln_package_nw);
   }
   fs.symlinkSync(dir_package_nw, ln_package_nw);
 
   // link node
-  const ln_node = `${dist_dir}/node`;
-  const ln_node_exe = `${dist_dir}/node.exe`;
+  const ln_node = `${options.hostPath}/node`;
+  const ln_node_exe = `${options.hostPath}/node.exe`;
+  console.log('# link %s@%s ...', ln_node, process.execPath);
   if (fs.existsSync(ln_node)) {
     fs.unlinkSync(ln_node);
   }
   fs.symlinkSync(process.execPath, ln_node);
+  console.log('# link %s@%s ...', ln_node_exe, process.execPath);
   if (fs.existsSync(ln_node_exe)) {
     fs.unlinkSync(ln_node_exe);
   }
   fs.symlinkSync(process.execPath, ln_node_exe);
 
-  // clean locales
-  const locale_dir = `${dist_dir}/locales/`;
+  const locale_dir = `${options.hostPath}/locales/`;
+  console.log('# clean unused locales@%s ...', locale_dir);
   fs.readdir(locale_dir, (e, files) => {
     if (e) {
       console.error(e);
-      // process.exit(1);
+      return;
     }
     for (const f of files) {
       if (!f.match(/(^zh\-CN.*)|(^en\-US.*)/)) {
@@ -132,82 +133,39 @@ function install_wechat(options) {
 
 function install(options) {
   console.log('# install ...');
-  const fs = require('fs');
 
-  // create dist dir
-  const dist_dir = `${options.cwd}/dist`;
-  if (fs.existsSync(dist_dir)) {
-    fs.rmdir(dist_dir, { recursive: true }, (e) => {
-      if (e) {
-        console.error(e);
-        process.exit(1);
-      }
-      fs.mkdirSync(dist_dir);      
-    });
+  if ('wechat' === options.vendor.name) {
+    install_wechat(options);
+    return;
   }
-
-  switch (options.vendor.name) {
-  case 'wechat':
-    {
-      return install_wechat(options);
-    }
-  default:
-    console.error('!panic, unknown vendor');
-    process.exit(1);
-  }
-  // const arch = process.arch;
-
-
-
-  // const [ ver, arch = process.arch ] = options.install.split('_');
-  // console.log('ver=%s, arch=%s', ver, arch);
-
-  // const vdir = `vendor/${options.vendor}/${ver}/${arch}`;
-  // const fs = require('fs');
-  // fs.mkdir(`${cwd}/${vdir}`, { recursive: true }, (e) => {
-  //   if (e) {
-  //     console.error(e);
-  //     // process.exit(1);
-  //   }
-  // });
-
-  // const vbag = `vendor/${options.vendor}/wechat_devtools_${ver}_${arch}.exe`;
-  // const { exec } = require('child_process');
-  // exec(`7z x -o${cwd}/${vdir} ${cwd}/${vbag} -y`, (e, _, __) => {
-  //   if (e) {
-  //     console.error(e);
-  //     // process.exit(1);
-  //   }
-  // });
-
-  // const fsx = require('fs-extra');
-
 }
 
 function run_wechat(options) {
-  const dist_dir = `${options.cwd}/dist`;
-  const nw = `${dist_dir}/nw`;
-  const ext = `${dist_dir}/package.nw/js/ideplugin`;
+  const nw = `${options.hostPath}/nw`;
+  const ext = `${options.hostPath}/package.nw/js/ideplugin`;
   process.env['LANG'] = 'zh_CN.UTF-8';
-  process.env['APPDATA'] = dist_dir;
-  process.env['PATH'] = `${dist_dir}:${process.env['PATH']}`;
+  process.env['APPDATA'] = options.hostPath;
+  process.env['PATH'] = `${options.hostPath}:${process.env['PATH']}`;
+
+  const argv = [ '--disable-gpu', `--load-extension=${ext}` ];
+  console.log('# %s %s', nw, argv.join(' '));
 
   const { execFile } = require('child_process');
-  execFile(nw, ['--disable-gpu', `--load-extension=${ext}`], (e, _, __) => {
+  execFile(nw, argv, (e) => {
     if (e) {
       console.error(e);
-      // process.exit(1);
+      process.exit(1);
     }
   });
 }
 
 function run(options) {
   console.log('# run %s@%s ...', options.vendor.name, options.host.name);
+
   if ('wechat' === options.vendor.name) {
     run_wechat(options);
     return;
   }
-
 }
 
 
@@ -232,8 +190,9 @@ if ((options._ && options.length > 0)
     name: opt && opt.name || 'wechat',
     ver: opt && opt.ver || option_vendor.get('wechat').ver,
   };
-  // options.vendorPath = `${process.cwd()}/vendor/${options.vendor.name}/${options.vendor.ver}/${process.arch}`;
-  options.vendorPath = `${options.cwd}/vendor/${options.vendor.name}`;
+  options.vendorRoot = `${options.cwd}/vendor/${options.vendor.name}`;
+  options.vendorPath = `${options.vendorRoot}/${options.vendor.ver}/${process.arch}`;
+  // options.vendorPath = `${options.cwd}/vendor/${options.vendor.name}`;
 }
 
 // host option:
@@ -246,8 +205,9 @@ if ((options._ && options.length > 0)
     ver: opt.host && opt.host.ver || option_host.get('nw').ver,
   };
   options.host = h;
-  // options.hostPath = `${process.cwd()}/host/${options.host.name}/${options.host.ver}/${process.arch}`;
-  options.hostPath = `${options.cwd}/host/${options.host.name}`;
+  options.hostRoot = `${options.cwd}/host/${options.host.name}`;
+  options.hostPath = `${options.hostRoot}/${options.host.ver}/${process.arch}`;
+  // options.hostPath = `${options.cwd}/host/${options.host.name}`;
 }
 
 

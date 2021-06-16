@@ -74,12 +74,25 @@ function install_wechat(options) {
     });
   });
 
+  // link package.nw
   const dir_package_nw = `${options.vendorPath}/code/package.nw`;
   const ln_package_nw = `${options.hostPath}/package.nw`;
   if (fs.existsSync(ln_package_nw)) {
     fs.unlinkSync(ln_package_nw);
   }
   fs.symlinkSync(dir_package_nw, ln_package_nw);
+    
+  // link node
+  const ln_node = `${options.hostPath}/node`;
+  const ln_node_exe = `${options.hostPath}/node.exe`;
+  if (fs.existsSync(ln_node)) {
+    fs.unlinkSync(ln_node);
+  }
+  fs.symlinkSync(process.execPath, ln_node);
+  if (fs.existsSync(ln_node_exe)) {
+    fs.unlinkSync(ln_node_exe);
+  }
+  fs.symlinkSync(process.execPath, ln_node_exe);
 }
 
 function install(options) {

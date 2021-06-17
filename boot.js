@@ -79,19 +79,10 @@ function install_wechat(options) {
   // decorate package.json
   const package_json = `${options.vendorPath}/code/package.nw/package.json`;
   console.log('# decorate %s ...', package_json);
-  fs.readFile(package_json, 'utf-8', (e, d) => {
-    if (e) {
-      console.error(e);
-      process.exit(1);
-    }
-    const n = d.replace(/微信开发者工具/gim, 'wechat_web_devtools');
-    fs.writeFile(package_json, n, 'utf-8', (e1) => {
-      if (e1) {
-        console.error(e1);
-        process.exit(1);
-      }
-    });
-  });
+  fs.writeFileSync(package_json,
+                   fs.readFileSync(package_json, 'utf8')
+                   .replace(/微信开发者工具/gim, 'wechat_web_devtools'),
+                   { encoding: 'utf8' });
 
   // link package.nw
   const dir_package_nw = `${options.vendorPath}/code/package.nw`;
@@ -118,17 +109,12 @@ function install_wechat(options) {
 
   const locale_dir = `${options.hostPath}/locales/`;
   console.log('# clean unused locales@%s ...', locale_dir);
-  fs.readdir(locale_dir, (e, files) => {
-    if (e) {
-      console.error(e);
-      return;
+  const locales = fs.readdirSync(locale_dir);
+  for (const f of locales) {
+    if (!f.match(/(^zh\-CN.*)|(^en\-US.*)/)) {
+      fs.unlinkSync(`${locale_dir}/${f}`);
     }
-    for (const f of files) {
-      if (!f.match(/(^zh\-CN.*)|(^en\-US.*)/)) {
-        fs.unlinkSync(`${locale_dir}/${f}`);
-      }
-    }
-  });
+  }
 }
 
 function install(options) {

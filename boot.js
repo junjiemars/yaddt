@@ -76,7 +76,7 @@ function install_wechat(options) {
   console.log('# extract %s@%s ...', path.relative(options.cwd, vendor_exe), path.relative(options.cwd, options.vendorPath));
   const z7_argv = ['x', `-o${options.vendorPath}/`, `${vendor_exe}`, '-y'];
   execFileSync('7z', z7_argv);
-  
+
   // decorate package.json
   const package_json = `${options.vendorPath}/code/package.nw/package.json`;
   const dev = 'wechat-dev';
@@ -88,8 +88,17 @@ function install_wechat(options) {
   console.log('# rename to %s', path.relative(options.cwd, dev_exe));
   fs.copyFileSync(`${options.vendorPath}/微信开发者工具.exe`, dev_exe, fs.constants.COPYFILE_FICLONE);
 
-  // link package.nw
+  // decorate cli/index.js
   const dir_package_nw = `${options.vendorPath}/code/package.nw`;
+  const cli_index_js = `${dir_package_nw}/js/common/cli/index.js`;
+  fs.writeFileSync(cli_index_js,
+                   fs.readFileSync(cli_index_js, 'utf8')
+                   .replace(/USERPROFILE/gm, 'HOME')
+                   .replace(/AppData\/Local\/\$\{global.userDirName\}\/User Data/gm, '.config/${global.userDirName}'),
+                   { encoding: 'utf8' });
+
+  // link package.nw
+
   const ln_package_nw = `${options.hostPath}/package.nw`;
   console.log('# link %s@%s ...', path.relative(options.cwd, dir_package_nw), path.relative(options.cwd, ln_package_nw));
   if (fs.existsSync(ln_package_nw)) {
